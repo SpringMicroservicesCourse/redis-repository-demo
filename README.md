@@ -137,7 +137,7 @@ Coffee Found: Optional[Coffee(name=mocha, price=TWD 150.00)]
 Save Coffee CoffeeCache(id=4, name=mocha, price=TWD 150.00) to cache.
 
 # 後續查詢 - 從Redis快取獲取
-Coffee CoffeeCache(id=4, name=mocha, price=CNY 150.00) found in cache.
+Coffee CoffeeCache(id=4, name=mocha, price=TWD 150.00) found in cache.
 ```
 
 ## 進階說明
