@@ -1,203 +1,351 @@
-# Spring Boot Redis Repository Demo ⚡
+# redis-repository-demo
 
-[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/)
+> Spring Data Redis Repository with @RedisHash and @Indexed for object-oriented Redis operations
+
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/)
 [![Redis](https://img.shields.io/badge/Redis-latest-red.svg)](https://redis.io/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Spring Data Redis](https://img.shields.io/badge/Spring%20Data%20Redis-3.4.5-blue.svg)](https://spring.io/projects/spring-data-redis)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## 專案介紹
+A comprehensive demonstration of **Spring Data Redis Repository** with `@RedisHash`, automatic secondary indexes with `@Indexed`, custom Money type converters, and object-oriented Redis operations.
 
-本專案是一個基於Spring Boot的Redis Repository示範應用程式，主要展示如何在Spring Boot應用中整合Redis作為快取層，實現高效能的資料存取模式。專案以咖啡訂單系統為例，展示了關聯式資料庫（H2）與NoSQL快取（Redis）的混合使用架構。
+## Features
 
-### 核心功能
-- 🔍 **智慧快取機制**：首次查詢從資料庫獲取，後續查詢直接從Redis快取提取
-- 🗄️ **混合資料存儲**：結合JPA（關聯式資料庫）與Redis（NoSQL快取）
-- ⚡ **效能最佳化**：透過Redis快取大幅提升查詢效能
-- 🔄 **自動資料轉換**：實現JPA實體與Redis快取物件的無縫轉換
+- Spring Data Redis Repository
+- `@RedisHash` for entity mapping
+- `@Indexed` for automatic secondary indexes
+- Custom Money type converters (Reading/Writing)
+- CrudRepository interface for CRUD operations
+- Automatic TTL management (timeToLive)
+- Database-to-cache synchronization (JPA → Redis)
+- Type-safe repository operations
+- Method naming convention queries
+- Lettuce client (non-blocking I/O)
+- Circular dependency resolution (@Lazy)
 
-### 解決的問題
-- 資料庫查詢效能瓶頸
-- 高併發場景下的回應時間優化
-- 複雜查詢的結果快取策略
+## Tech Stack
 
-> 💡 **為什麼選擇此專案？**
-> - 📚 學習Spring Data Redis的最佳實務
-> - 🏗️ 了解現代微服務架構中的快取策略
-> - 🔧 掌握循環依賴的解決方案
+- Spring Boot 3.4.5
+- Spring Data Redis 3.4.5 (Lettuce client)
+- Spring Data JPA
+- Java 21
+- H2 Database 2.3.232
+- Apache Commons Pool2 (connection pool)
+- Joda Money 2.0.2
+- Lombok
+- Maven 3.8+
 
-### 🎯 專案特色
+## Getting Started
 
-- **無循環依賴設計**：採用配置分離與延遲注入，符合Spring Boot 3.x最佳實務
-- **型別安全的金額處理**：整合Joda Money進行精確的貨幣計算
-- **完整的實體映射**：自定義轉換器處理複雜物件的序列化與反序列化
-- **企業級架構模式**：清晰的分層架構與職責分離
+### Prerequisites
 
-## 技術棧
+- JDK 21 or higher
+- Maven 3.8+ (or use included Maven Wrapper)
+- Docker (for Redis)
 
-### 核心框架
-- **Spring Boot 3.4.5** - 主要應用程式框架，提供自動配置與依賴注入
-- **Spring Data JPA** - 資料持久層框架，處理關聯式資料庫操作
-- **Spring Data Redis** - Redis整合框架，提供Repository模式的快取操作
-- **Hibernate 6.6.13** - JPA實作，負責ORM映射與SQL生成
+### Quick Start
 
-### 資料庫與快取
-- **H2 Database** - 輕量級記憶體資料庫，適合開發與測試環境
-- **Redis** - 高效能記憶體快取資料庫，支援多種資料結構
-- **Lettuce** - 非同步Redis客戶端，提供連線池與高併發支援
+**Step 1: Start Redis**
 
-### 開發工具與輔助
-- **Lombok** - 減少樣板程式碼，自動生成getter/setter/builder等方法
-- **Joda Money** - 專業的貨幣處理函式庫，確保金額計算的精確性
-- **Maven** - 專案建構與依賴管理工具
-- **Docker** - 容器化Redis服務，簡化開發環境設定
-
-## 專案結構
-
-```
-redis-repository-demo/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── tw/fengqing/spring/springbucks/
-│   │   │       ├── config/          # 配置類別
-│   │   │       │   └── RedisConfig.java
-│   │   │       ├── converter/       # 自定義轉換器
-│   │   │       │   ├── BytesToMoneyConverter.java
-│   │   │       │   ├── MoneyConverter.java
-│   │   │       │   └── MoneyToBytesConverter.java
-│   │   │       ├── model/           # 資料模型
-│   │   │       │   ├── BaseEntity.java
-│   │   │       │   ├── Coffee.java
-│   │   │       │   ├── CoffeeCache.java
-│   │   │       │   ├── CoffeeOrder.java
-│   │   │       │   └── OrderState.java
-│   │   │       ├── repository/      # 資料存取層
-│   │   │       │   ├── CoffeeCacheRepository.java
-│   │   │       │   ├── CoffeeOrderRepository.java
-│   │   │       │   └── CoffeeRepository.java
-│   │   │       ├── service/         # 業務邏輯層
-│   │   │       │   ├── CoffeeOrderService.java
-│   │   │       │   └── CoffeeService.java
-│   │   │       └── SpringBucksApplication.java
-│   │   └── resources/
-│   │       ├── application.properties
-│   │       ├── data.sql            # 初始化資料
-│   │       └── schema.sql          # 資料庫架構
-│   └── test/
-├── pom.xml
-└── README.md
-```
-
-## 快速開始
-
-### 前置需求
-- ☕ **Java 21** 或更高版本
-- 🐳 **Docker** (用於執行Redis服務)
-- 📦 **Maven 3.6+** (用於專案建構)
-
-### 安裝與執行
-
-1. **克隆此倉庫：**
 ```bash
-git clone https://github.com/SpringMicroservicesCourse/redis-repository-demo.git
+# Using Docker (recommended)
+docker run -d \
+  --name redis-spring-course \
+  -p 6379:6379 \
+  redis
+
+# Or using Docker Compose
+docker-compose up -d
 ```
 
-2. **進入專案目錄：**
+**Step 2: Verify Redis**
+
 ```bash
-cd redis-repository-demo
+# Test Redis connection
+docker exec -it redis-spring-course redis-cli ping
+# Expected: PONG
 ```
 
-3. **啟動Redis服務：**
+**Step 3: Run the application**
+
 ```bash
-# 使用Docker啟動Redis
-docker run -d --name redis-demo -p 6379:6379 redis:latest
-
-# 驗證Redis服務狀態
-docker exec redis-demo redis-cli ping
-# 預期回應：PONG
+./mvnw spring-boot:run
 ```
 
-4. **編譯專案：**
-```bash
-mvn clean compile
+## Configuration
+
+### Application Properties
+
+```properties
+# JPA/Hibernate configuration
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.properties.hibernate.show_sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# Actuator endpoints
+management.endpoints.web.exposure.include=*
+
+# Redis connection
+spring.redis.host=localhost
+
+# Lettuce connection pool
+spring.redis.lettuce.pool.maxActive=5
+spring.redis.lettuce.pool.maxIdle=5
 ```
 
-5. **執行應用程式：**
-```bash
-mvn spring-boot:run
+### Docker Compose
+
+**docker-compose.yml:**
+
+```yaml
+services:
+  redis-spring-course:
+    image: redis
+    container_name: redis-spring-course
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-data:/data
 ```
 
-### 🎉 執行結果
+## Usage
 
-當應用程式成功啟動後，您會看到如下的快取演示效果：
+### Application Flow
 
 ```
-# 第一次查詢 - 從資料庫獲取
-Coffee Found: Optional[Coffee(name=mocha, price=TWD 150.00)]
+1. Spring Boot starts
+   ↓
+2. @EnableRedisRepositories activates Redis Repository
+   ↓
+3. H2 database initialized with schema.sql
+   - Creates t_coffee table
+   - Inserts 5 coffee records
+   ↓
+4. ApplicationRunner executes:
+   - Query coffee "mocha" (6 times)
+   - First query: Database → Cache to Redis (CoffeeCache entity)
+   - Next 5 queries: Read from Redis cache (via secondary index)
+```
+
+### Code Example
+
+```java
+@Slf4j
+@SpringBootApplication
+@EnableJpaRepositories
+public class SpringBucksApplication implements ApplicationRunner {
+    
+    @Autowired
+    private CoffeeService coffeeService;
+    
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        // Query coffee "mocha" 6 times
+        Optional<Coffee> c = coffeeService.findSimpleCoffeeFromCache("mocha");
+        log.info("Coffee {}", c);
+        
+        for (int i = 0; i < 5; i++) {
+            c = coffeeService.findSimpleCoffeeFromCache("mocha");
+        }
+        
+        log.info("Value from Redis: {}", c);
+    }
+}
+```
+
+### Sample Output
+
+```
+Coffee Found: Optional[Coffee(super=BaseEntity(id=4, createTime=2025-10-16 16:52:02.640075, updateTime=2025-10-16 16:52:02.640075), name=mocha, price=TWD 150.00)]
 Save Coffee CoffeeCache(id=4, name=mocha, price=TWD 150.00) to cache.
 
-# 後續查詢 - 從Redis快取獲取
 Coffee CoffeeCache(id=4, name=mocha, price=TWD 150.00) found in cache.
+Coffee CoffeeCache(id=4, name=mocha, price=TWD 150.00) found in cache.
+Coffee CoffeeCache(id=4, name=mocha, price=TWD 150.00) found in cache.
+Coffee CoffeeCache(id=4, name=mocha, price=TWD 150.00) found in cache.
+Coffee CoffeeCache(id=4, name=mocha, price=TWD 150.00) found in cache.
+
+Value from Redis: Optional[Coffee(super=BaseEntity(id=null, createTime=null, updateTime=null), name=mocha, price=TWD 150.00)]
 ```
 
-## 進階說明
+**Output Analysis:**
+- **First query**: Database query → Save to Redis as CoffeeCache
+- **Next 5 queries**: Cache hit via `findOneByName()` using secondary index
+- **Note**: Cached Coffee has no id/timestamps (only essential fields cached)
 
-### 環境變數
-```properties
-# Redis連線設定
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=your-password
+## Key Components
 
-# 資料庫設定
-H2_DB_PATH=./data/springbucks
-```
-
-### 設定檔說明
-```properties
-# application.properties 主要設定
-
-# JPA/Hibernate設定
-spring.jpa.hibernate.ddl-auto=none           # 不自動更新資料庫架構
-spring.jpa.properties.hibernate.show_sql=true    # 顯示SQL語句
-spring.jpa.properties.hibernate.format_sql=true  # 格式化SQL輸出
-
-# Spring Boot管理端點
-management.endpoints.web.exposure.include=*      # 開放所有監控端點
-
-# Redis連線設定
-spring.redis.host=localhost                       # Redis伺服器位址
-spring.redis.lettuce.pool.maxActive=5           # 連線池最大活躍連線數
-spring.redis.lettuce.pool.maxIdle=5             # 連線池最大閒置連線數
-```
-
-### 核心架構說明
-
-#### 🔄 快取策略實作
+### CoffeeCache Entity
 
 ```java
 /**
- * 智慧快取查詢方法
- * 1. 先檢查Redis快取
- * 2. 快取未命中時查詢資料庫
- * 3. 將查詢結果存入快取
+ * Redis Repository entity
+ * Maps to Redis Hash with automatic TTL and secondary indexes
  */
-public Optional<Coffee> findSimpleCoffeeFromCache(String name) {
-    // 第一步：嘗試從Redis快取獲取
-    Optional<CoffeeCache> cached = cacheRepository.findOneByName(name);
+@RedisHash(value = "springbucks-coffee", timeToLive = 60)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class CoffeeCache {
     
-    if (cached.isPresent()) {
-        // 快取命中：直接返回快取結果
-        CoffeeCache coffeeCache = cached.get();
-        Coffee coffee = Coffee.builder()
-                .name(coffeeCache.getName())
-                .price(coffeeCache.getPrice())
-                .build();
-        log.info("Coffee {} found in cache.", coffeeCache);
-        return Optional.of(coffee);
-    } else {
-        // 快取未命中：查詢資料庫並更新快取
+    @Id
+    private Long id;              // Primary key
+    
+    @Indexed
+    private String name;          // Secondary index (auto-created)
+    
+    private Money price;          // Custom converter required
+}
+```
+
+**Annotation Explanation:**
+
+- **@RedisHash**:
+  - `value = "springbucks-coffee"`: Redis Hash name prefix
+  - `timeToLive = 60`: Auto-expire after 60 seconds
+  
+- **@Id**: Primary key field (generates `springbucks-coffee:4`)
+
+- **@Indexed**: Creates secondary index (`springbucks-coffee:name:mocha`)
+  - Enables query by name: `findOneByName()`
+
+### CoffeeCacheRepository
+
+```java
+/**
+ * Redis Repository interface
+ * Extends CrudRepository for basic CRUD operations
+ */
+public interface CoffeeCacheRepository extends CrudRepository<CoffeeCache, Long> {
+    
+    /**
+     * Find by name using secondary index
+     * Spring Data auto-implements this method
+     */
+    Optional<CoffeeCache> findOneByName(String name);
+}
+```
+
+**Repository Methods:**
+- `save(coffeeCache)`: Save to Redis
+- `findById(id)`: Find by primary key
+- `findOneByName(name)`: Find by secondary index
+- `deleteById(id)`: Delete from Redis
+- `findAll()`: Find all entries
+
+### Custom Money Converters
+
+**MoneyToBytesConverter (Writing):**
+
+```java
+@WritingConverter
+public class MoneyToBytesConverter implements Converter<Money, byte[]> {
+    
+    @Override
+    public byte[] convert(@NonNull Money source) {
+        String value = Long.toString(source.getAmountMinorLong());
+        return value.getBytes(StandardCharsets.UTF_8);
+    }
+}
+```
+
+**BytesToMoneyConverter (Reading):**
+
+```java
+@ReadingConverter
+public class BytesToMoneyConverter implements Converter<byte[], Money> {
+    
+    @Override
+    public Money convert(@NonNull byte[] source) {
+        String value = new String(source, StandardCharsets.UTF_8);
+        return Money.ofMinor(CurrencyUnit.of("TWD"), Long.parseLong(value));
+    }
+}
+```
+
+**Conversion Flow:**
+
+```
+Java → Redis:
+Money(TWD 150.00) → getAmountMinorLong() → 15000L
+                  → Long.toString() → "15000"
+                  → getBytes(UTF-8) → byte[]
+                  → Redis
+
+Redis → Java:
+Redis → byte[] → new String(UTF-8) → "15000"
+              → Long.parseLong() → 15000L
+              → Money.ofMinor() → Money(TWD 150.00)
+```
+
+### RedisConfig
+
+```java
+@Configuration
+@EnableRedisRepositories(basePackages = "tw.fengqing.spring.springbucks.repository")
+public class RedisConfig {
+    
+    /**
+     * Lettuce client configuration
+     * ReadFrom.MASTER_PREFERRED: Prefer reading from master
+     */
+    @Bean
+    public LettuceClientConfigurationBuilderCustomizer customizer() {
+        return builder -> builder.readFrom(ReadFrom.MASTER_PREFERRED);
+    }
+    
+    /**
+     * Register custom Money converters
+     */
+    @Bean
+    public RedisCustomConversions redisCustomConversions() {
+        return new RedisCustomConversions(
+                Arrays.asList(new MoneyToBytesConverter(), new BytesToMoneyConverter()));
+    }
+}
+```
+
+**Important:**
+- `@EnableRedisRepositories`: Enable Redis Repository scanning
+- `basePackages`: Specify repository package to avoid conflicts with JPA repositories
+- `RedisCustomConversions`: Register custom type converters
+
+### CoffeeService
+
+```java
+@Service
+public class CoffeeService {
+    
+    @Autowired
+    private CoffeeRepository coffeeRepository;  // JPA repository
+    
+    @Autowired
+    private CoffeeCacheRepository cacheRepository;  // Redis repository
+    
+    /**
+     * Find coffee from cache with automatic fallback
+     */
+    public Optional<Coffee> findSimpleCoffeeFromCache(String name) {
+        // 1. Check Redis cache using secondary index
+        Optional<CoffeeCache> cached = cacheRepository.findOneByName(name);
+        
+        if (cached.isPresent()) {
+            // Cache hit - Convert to Coffee entity
+            CoffeeCache coffeeCache = cached.get();
+            Coffee coffee = Coffee.builder()
+                    .name(coffeeCache.getName())
+                    .price(coffeeCache.getPrice())
+                    .build();
+            log.info("Coffee {} found in cache.", coffeeCache);
+            return Optional.of(coffee);
+        }
+        
+        // 2. Cache miss - Query database
         Optional<Coffee> raw = findOneCoffee(name);
+        
+        // 3. Update cache
         raw.ifPresent(c -> {
             CoffeeCache coffeeCache = CoffeeCache.builder()
                     .id(c.getId())
@@ -206,100 +354,645 @@ public Optional<Coffee> findSimpleCoffeeFromCache(String name) {
                     .build();
             log.info("Save Coffee {} to cache.", coffeeCache);
             cacheRepository.save(coffeeCache);
+            // TTL automatically set by @RedisHash(timeToLive = 60)
         });
+        
         return raw;
     }
 }
 ```
 
-#### 🔧 循環依賴解決方案
+## Redis Data Structure
 
-本專案採用**配置分離 + 延遲注入**的方式解決Spring Boot 3.x的循環依賴問題：
+### Redis Keys Created by Repository
+
+When saving `CoffeeCache(id=4, name=mocha, price=15000)`, Spring Data Redis automatically creates **4 keys**:
+
+```bash
+# Connect to Redis
+docker exec -it redis-spring-course redis-cli
+
+# View all keys
+127.0.0.1:6379> KEYS *
+1) "springbucks-coffee"              # Set: All CoffeeCache IDs
+2) "springbucks-coffee:4:idx"        # Set: Index collection for ID 4
+3) "springbucks-coffee:name:mocha"   # Set: Secondary index by name
+4) "springbucks-coffee:4"            # Hash: Full data for ID 4
+```
+
+### Data Structure Details
+
+| Redis Key | Type | Purpose | Content |
+|-----------|------|---------|---------|
+| `springbucks-coffee` | Set | Main index | All CoffeeCache IDs (e.g., "4") |
+| `springbucks-coffee:4` | Hash | Main data | Full data (\_class, id, name, price) |
+| `springbucks-coffee:name:mocha` | Set | Secondary index | Find ID by name (@Indexed) |
+| `springbucks-coffee:4:idx` | Set | Index collection | All indexes for ID 4 |
+
+### View Cache Data
+
+```bash
+# 1. View main Set (all IDs)
+127.0.0.1:6379> SMEMBERS springbucks-coffee
+1) "4"
+
+127.0.0.1:6379> TYPE springbucks-coffee
+set
+
+# 2. View main Hash (full data for ID 4)
+127.0.0.1:6379> HGETALL springbucks-coffee:4
+1) "_class"
+2) "tw.fengqing.spring.springbucks.model.CoffeeCache"
+3) "id"
+4) "4"
+5) "name"
+6) "mocha"
+7) "price"
+8) "15000"
+
+127.0.0.1:6379> TYPE springbucks-coffee:4
+hash
+
+# 3. View secondary index (find ID by name)
+127.0.0.1:6379> SMEMBERS springbucks-coffee:name:mocha
+1) "4"
+
+127.0.0.1:6379> TYPE springbucks-coffee:name:mocha
+set
+
+# 4. View index collection (all indexes for ID 4)
+127.0.0.1:6379> SMEMBERS springbucks-coffee:4:idx
+1) "springbucks-coffee:name:mocha"
+
+127.0.0.1:6379> TYPE springbucks-coffee:4:idx
+set
+
+# 5. Check TTL
+127.0.0.1:6379> TTL springbucks-coffee:4
+(integer) 45  # 45 seconds remaining
+
+127.0.0.1:6379> TTL springbucks-coffee:name:mocha
+(integer) 45  # Index expires with main data
+
+# 6. View individual Hash fields
+127.0.0.1:6379> HGET springbucks-coffee:4 name
+"mocha"
+
+127.0.0.1:6379> HGET springbucks-coffee:4 price
+"15000"
+
+# Exit
+127.0.0.1:6379> exit
+```
+
+## How It Works
+
+### Save Operation
+
+When calling `cacheRepository.save(coffeeCache)`, Spring Data Redis automatically:
+
+```
+cacheRepository.save(CoffeeCache(id=4, name=mocha, price=15000))
+  ↓
+1. Create main Hash: springbucks-coffee:4
+   → HSET springbucks-coffee:4 _class "tw.fengqing.spring.springbucks.model.CoffeeCache"
+   → HSET springbucks-coffee:4 id "4"
+   → HSET springbucks-coffee:4 name "mocha"
+   → HSET springbucks-coffee:4 price "15000"
+   → EXPIRE springbucks-coffee:4 60
+  ↓
+2. Add to main Set: springbucks-coffee
+   → SADD springbucks-coffee "4"
+  ↓
+3. Create secondary index: springbucks-coffee:name:mocha (@Indexed)
+   → SADD springbucks-coffee:name:mocha "4"
+   → EXPIRE springbucks-coffee:name:mocha 60
+  ↓
+4. Create index collection: springbucks-coffee:4:idx
+   → SADD springbucks-coffee:4:idx "springbucks-coffee:name:mocha"
+   → EXPIRE springbucks-coffee:4:idx 60
+```
+
+### Query Operation
+
+When calling `findOneByName("mocha")`:
+
+```
+cacheRepository.findOneByName("mocha")
+  ↓
+1. Query secondary index: SMEMBERS springbucks-coffee:name:mocha
+   → Returns: ["4"]
+  ↓
+2. Query main Hash: HGETALL springbucks-coffee:4
+   → Returns: {_class=..., id=4, name=mocha, price=15000}
+  ↓
+3. Deserialize to CoffeeCache object
+   → Use BytesToMoneyConverter: "15000" → Money(TWD 150.00)
+```
+
+### Delete Operation
+
+When calling `cacheRepository.deleteById(4L)`:
+
+```
+cacheRepository.deleteById(4L)
+  ↓
+1. Remove from main Set: SREM springbucks-coffee "4"
+  ↓
+2. Get index collection: SMEMBERS springbucks-coffee:4:idx
+   → Returns: ["springbucks-coffee:name:mocha"]
+  ↓
+3. Remove from secondary index: SREM springbucks-coffee:name:mocha "4"
+  ↓
+4. Delete main Hash: DEL springbucks-coffee:4
+  ↓
+5. Delete index collection: DEL springbucks-coffee:4:idx
+```
+
+## @RedisHash Annotations
+
+### @RedisHash
+
+**Purpose:** Define Redis Hash entity
 
 ```java
-// 獨立的Redis配置類
-@Configuration
-@EnableRedisRepositories(basePackages = "tw.fengqing.spring.springbucks.repository")
-public class RedisConfig {
-    // Redis相關配置與Bean定義
-}
-
-// 主應用類使用延遲注入
-@SpringBootApplication
-public class SpringBucksApplication {
-    @Autowired
-    @Lazy  // 延遲初始化，避免循環依賴
-    private CoffeeService coffeeService;
+@RedisHash(
+    value = "springbucks-coffee",  // Redis Hash name prefix
+    timeToLive = 60                 // Auto-expire after 60 seconds
+)
+public class CoffeeCache {
+    // ...
 }
 ```
 
-## 參考資源
+**Effects:**
+- Creates Redis Hash with name `springbucks-coffee:{id}`
+- Auto-sets TTL on save
+- Manages main Set `springbucks-coffee` with all IDs
 
-- [Spring Data Redis 官方文件](https://docs.spring.io/spring-data/redis/docs/current/reference/html/)
-- [Redis 官方文件](https://redis.io/documentation)
-- [Spring Boot 3.x 升級指南](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide)
-- [Joda Money 使用指南](https://www.joda.org/joda-money/)
+### @Id
 
-## 注意事項與最佳實踐
-
-### ⚠️ 重要提醒
-
-| 項目 | 說明 | 建議做法 |
-|------|------|----------|
-| 循環依賴 | Spring Boot 3.x 預設禁止循環依賴 | 使用@Lazy注解或配置分離 |
-| 金額精度 | 使用float/double會有精度問題 | 採用Joda Money或BigDecimal |
-| 快取一致性 | Redis與資料庫資料可能不一致 | 實作適當的快取更新策略 |
-| 連線管理 | Redis連線數限制 | 合理配置連線池參數 |
-
-### 🔒 最佳實踐指南
-
-- **快取策略**：根據業務場景選擇適當的TTL（生存時間）設定
-- **錯誤處理**：實作Redis連線失敗時的降級機制
-- **監控告警**：建立快取命中率與效能監控指標
-- **資料一致性**：考慮使用分散式鎖確保資料一致性
-- **安全性**：生產環境務必設定Redis密碼與網路隔離
-
-### 📊 效能優化建議
+**Purpose:** Define primary key
 
 ```java
-// 批次操作範例
-@Service
-public class CoffeeService {
+@Id
+private Long id;
+```
+
+**Effects:**
+- Generates Redis key: `springbucks-coffee:{id}`
+- Used in `findById()` and `deleteById()`
+
+### @Indexed
+
+**Purpose:** Create secondary index
+
+```java
+@Indexed
+private String name;
+```
+
+**Effects:**
+- Creates secondary index key: `springbucks-coffee:name:{name}`
+- Stores Set of IDs with this name
+- Enables `findOneByName()` method
+- Index expires with main data (TTL sync)
+
+## Repository Methods
+
+### Built-in Methods (from CrudRepository)
+
+```java
+// Save to Redis
+CoffeeCache saved = cacheRepository.save(coffeeCache);
+
+// Find by ID
+Optional<CoffeeCache> found = cacheRepository.findById(4L);
+
+// Find all
+Iterable<CoffeeCache> all = cacheRepository.findAll();
+
+// Delete by ID
+cacheRepository.deleteById(4L);
+
+// Delete entity
+cacheRepository.delete(coffeeCache);
+
+// Check existence
+boolean exists = cacheRepository.existsById(4L);
+
+// Count
+long count = cacheRepository.count();
+```
+
+### Custom Query Methods
+
+```java
+public interface CoffeeCacheRepository extends CrudRepository<CoffeeCache, Long> {
     
-    /**
-     * 批次查詢快取，減少網路往返次數
-     */
-    public Map<String, Coffee> batchFindFromCache(List<String> names) {
-        // 使用MultiGet減少Redis查詢次數
-        List<CoffeeCache> cached = cacheRepository.findByNameIn(names);
-        
-        // 轉換為Map以提升查詢效率
-        return cached.stream()
-                .collect(Collectors.toMap(
-                    CoffeeCache::getName,
-                    this::convertToEntity
+    // Find by name using @Indexed secondary index
+    Optional<CoffeeCache> findOneByName(String name);
+    
+    // Can add more query methods:
+    // List<CoffeeCache> findByPriceGreaterThan(Money price);
+    // List<CoffeeCache> findByNameContaining(String keyword);
+}
+```
+
+**Naming Convention:**
+- `findOneByName`: Find single result by name field
+- `findByName`: Find list by name field
+- `findByNameAndPrice`: Multiple field query
+- `findByPriceGreaterThan`: Comparison query
+
+## Custom Converters
+
+### Why Custom Converters?
+
+Redis Repository doesn't know how to serialize complex types like `Money`. We need custom converters.
+
+### Converter Registration
+
+```java
+@Configuration
+public class RedisConfig {
+    
+    @Bean
+    public RedisCustomConversions redisCustomConversions() {
+        return new RedisCustomConversions(
+                Arrays.asList(
+                        new MoneyToBytesConverter(),    // Write: Money → byte[]
+                        new BytesToMoneyConverter()     // Read: byte[] → Money
                 ));
     }
 }
 ```
 
-## 授權說明
+### MoneyToBytesConverter
 
-本專案採用 MIT 授權條款，詳見 LICENSE 檔案。
+```java
+@WritingConverter
+public class MoneyToBytesConverter implements Converter<Money, byte[]> {
+    
+    @Override
+    public byte[] convert(@NonNull Money source) {
+        // Money(TWD 150.00) → "15000" → byte[]
+        String value = Long.toString(source.getAmountMinorLong());
+        return value.getBytes(StandardCharsets.UTF_8);
+    }
+}
+```
 
-## 關於我們
+### BytesToMoneyConverter
 
-我們主要專注在敏捷專案管理、物聯網（IoT）應用開發和領域驅動設計（DDD）。喜歡把先進技術和實務經驗結合，打造好用又靈活的軟體解決方案。
+```java
+@ReadingConverter
+public class BytesToMoneyConverter implements Converter<byte[], Money> {
+    
+    @Override
+    public Money convert(@NonNull byte[] source) {
+        // byte[] → "15000" → Money(TWD 150.00)
+        String value = new String(source, StandardCharsets.UTF_8);
+        return Money.ofMinor(CurrencyUnit.of("TWD"), Long.parseLong(value));
+    }
+}
+```
 
-## 聯繫我們
+## Circular Dependency Resolution
 
-- **FB 粉絲頁**：[風清雲談 | Facebook](https://www.facebook.com/profile.php?id=61576838896062)
-- **LinkedIn**：[linkedin.com/in/chu-kuo-lung](https://www.linkedin.com/in/chu-kuo-lung)
-- **YouTube 頻道**：[雲談風清 - YouTube](https://www.youtube.com/channel/UCXDqLTdCMiCJ1j8xGRfwEig)
-- **風清雲談 部落格**：[風清雲談](https://blog.fengqing.tw/)
-- **電子郵件**：[fengqing.tw@gmail.com](mailto:fengqing.tw@gmail.com)
+### Problem (Spring Boot 3.x)
+
+```
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+The dependencies of some of the beans in the application context form a cycle:
+
+┌─────┐
+|  redisConfig (field private org.springframework.data.redis...)
+↑     ↓
+|  coffeeService (field private ...CoffeeCacheRepository)
+↑     ↓
+|  springBucksApplication (field private ...CoffeeService)
+└─────┘
+```
+
+### Solution: Configuration Separation + @Lazy
+
+**Separate Redis Configuration:**
+
+```java
+// Separate Redis configuration class
+@Configuration
+@EnableRedisRepositories(basePackages = "tw.fengqing.spring.springbucks.repository")
+public class RedisConfig {
+    // Redis-specific beans
+}
+
+// Main application class
+@SpringBootApplication
+public class SpringBucksApplication {
+    // Application logic
+}
+```
+
+**Use @Lazy for late initialization:**
+
+```java
+@SpringBootApplication
+public class SpringBucksApplication implements ApplicationRunner {
+    
+    @Autowired
+    @Lazy  // Lazy initialization to avoid circular dependency
+    private CoffeeService coffeeService;
+    
+    // ...
+}
+```
+
+## Monitoring
+
+### Redis Monitoring Commands
+
+**Real-time Monitor:**
+
+```bash
+# Monitor all Redis commands
+docker exec -it redis-spring-course redis-cli MONITOR
+
+# After starting app, you'll see:
+# 1697012345.123456 [0 127.0.0.1:12345] "SMEMBERS" "springbucks-coffee:name:mocha"
+# 1697012345.234567 [0 127.0.0.1:12345] "HGETALL" "springbucks-coffee:4"
+```
+
+**Database Statistics:**
+
+```bash
+docker exec -it redis-spring-course redis-cli
+
+127.0.0.1:6379> DBSIZE
+(integer) 4  # 4 keys for one CoffeeCache entry
+
+127.0.0.1:6379> INFO keyspace
+# Keyspace
+db0:keys=4,expires=4,avg_ttl=45000
+```
+
+### Actuator Endpoints
+
+```bash
+# View all endpoints
+curl http://localhost:8080/actuator
+
+# Health check
+curl http://localhost:8080/actuator/health
+```
+
+## Best Practices
+
+### 1. Entity Design
+
+```java
+// ✅ Good: Only cache essential fields
+@RedisHash(value = "user-cache", timeToLive = 3600)
+public class UserCache {
+    @Id
+    private Long id;
+    
+    @Indexed
+    private String username;    // Create index for queries
+    
+    @Indexed
+    private String email;       // Multiple indexes supported
+    
+    private String displayName; // No index (not frequently queried)
+}
+
+// ❌ Bad: Cache too many fields
+@RedisHash(value = "user-cache", timeToLive = 3600)
+public class UserCache {
+    @Id
+    private Long id;
+    
+    private String password;           // Sensitive data!
+    private byte[] profileImage;       // Large data!
+    private List<Order> orderHistory;  // Complex relationships!
+}
+```
+
+### 2. Index Design
+
+```java
+// ✅ Use @Indexed for frequently queried fields
+@Indexed
+private String username;  // findByUsername() is common
+
+// ❌ Don't index every field
+@Indexed
+private String description;  // Rarely queried, wastes space
+```
+
+### 3. TTL Configuration
+
+```java
+// ✅ Always set TTL to prevent memory leak
+@RedisHash(value = "coffee-cache", timeToLive = 60)
+
+// ✅ Different TTL for different data
+@RedisHash(value = "hot-data", timeToLive = 300)     // 5 minutes
+@RedisHash(value = "cold-data", timeToLive = 3600)   // 1 hour
+@RedisHash(value = "config-data", timeToLive = 86400) // 24 hours
+
+// ❌ Never expire (memory leak!)
+@RedisHash(value = "user-cache")  // No timeToLive!
+```
+
+### 4. Converter Best Practices
+
+```java
+// ✅ Handle null values
+@ReadingConverter
+public class BytesToMoneyConverter implements Converter<byte[], Money> {
+    @Override
+    public Money convert(@NonNull byte[] source) {
+        if (source == null || source.length == 0) {
+            return null;  // Handle null
+        }
+        String value = new String(source, StandardCharsets.UTF_8);
+        return Money.ofMinor(CurrencyUnit.of("TWD"), Long.parseLong(value));
+    }
+}
+
+// ✅ Add error handling
+@WritingConverter
+public class MoneyToBytesConverter implements Converter<Money, byte[]> {
+    @Override
+    public byte[] convert(@NonNull Money source) {
+        try {
+            String value = Long.toString(source.getAmountMinorLong());
+            return value.getBytes(StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            log.error("Money conversion failed", e);
+            return "0".getBytes(StandardCharsets.UTF_8);
+        }
+    }
+}
+```
+
+## Common Issues
+
+### Issue 1: Circular Dependency
+
+**Error:**
+
+```
+The dependencies of some of the beans form a cycle
+```
+
+**Solutions:**
+
+```java
+// Solution 1: Use @Lazy
+@Autowired
+@Lazy
+private CoffeeService coffeeService;
+
+// Solution 2: Separate configuration
+@Configuration
+@EnableRedisRepositories(basePackages = "...")
+public class RedisConfig { }
+```
+
+### Issue 2: Converter Not Working
+
+**Problem:** Money field not converted properly
+
+**Cause:** Converter not registered
+
+**Solution:**
+
+```java
+@Bean
+public RedisCustomConversions redisCustomConversions() {
+    return new RedisCustomConversions(
+            Arrays.asList(
+                    new MoneyToBytesConverter(),
+                    new BytesToMoneyConverter()
+            ));
+}
+```
+
+### Issue 3: Secondary Index Not Created
+
+**Problem:** `findOneByName()` returns empty
+
+**Cause:** Missing `@Indexed` annotation
+
+**Solution:**
+
+```java
+// Add @Indexed to name field
+@Indexed
+private String name;
+```
+
+### Issue 4: Data Not Expiring
+
+**Problem:** Redis memory keeps growing
+
+**Cause:** No TTL configured
+
+**Solution:**
+
+```java
+// Add timeToLive to @RedisHash
+@RedisHash(value = "springbucks-coffee", timeToLive = 60)
+```
+
+## redis-demo vs redis-repository-demo
+
+| Feature | redis-demo | redis-repository-demo |
+|---------|------------|----------------------|
+| **Approach** | Manual RedisTemplate | Automatic Repository |
+| **Code Complexity** | Higher (manual) | Lower (auto) |
+| **Redis Keys** | 1 key | 4 keys per entity |
+| **Data Structure** | Hash only | Hash + Set |
+| **Index Support** | ❌ Manual | ✅ Automatic (@Indexed) |
+| **TTL Management** | Manual `expire()` | Auto (@RedisHash) |
+| **Serialization** | JDK (binary) | Custom converters |
+| **Type Safety** | Manual conversion | Automatic |
+| **Flexibility** | ✅ High | ⚠️ Limited |
+| **Code Lines** | 10+ lines | 2-3 lines |
+| **Use Case** | Full control needed | Complex queries, indexes |
+
+**Selection Guide:**
+- **redis-demo**: Use when you need full control over Redis operations
+- **redis-repository-demo**: Use when you need secondary indexes and automatic management
+
+## Testing
+
+### Run Tests
+
+```bash
+# Run tests
+./mvnw test
+
+# Run application
+./mvnw spring-boot:run
+```
+
+### Clear Redis Cache
+
+```bash
+# Connect to Redis
+docker exec -it redis-spring-course redis-cli
+
+# Delete all keys
+127.0.0.1:6379> FLUSHALL
+
+# Or delete specific pattern
+127.0.0.1:6379> EVAL "return redis.call('del', unpack(redis.call('keys', 'springbucks-coffee*')))" 0
+```
+
+## Best Practices Demonstrated
+
+1. **Spring Data Redis Repository**: Object-oriented Redis operations
+2. **@RedisHash**: Entity mapping with automatic TTL
+3. **@Indexed**: Secondary indexes for complex queries
+4. **Custom Converters**: Money type serialization
+5. **Circular Dependency Resolution**: @Lazy and configuration separation
+6. **ReadFrom Strategy**: Data consistency with MASTER_PREFERRED
+7. **Type Safety**: Compile-time checks with repository interface
+
+## References
+
+- [Spring Data Redis Documentation](https://docs.spring.io/spring-data/redis/docs/current/reference/html/)
+- [Spring Data Redis Repositories](https://docs.spring.io/spring-data/redis/docs/current/reference/html/#redis.repositories)
+- [Redis Documentation](https://redis.io/docs/)
+- [Redis Hash Commands](https://redis.io/commands/?group=hash)
+- [Lettuce Redis Client](https://lettuce.io/)
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## About Us
+
+我們主要專注在敏捷專案管理、物聯網（IoT）應用開發和領域驅動設計（DDD）。喜歡把先進技術和實務經驗結合，打造好用又靈活的軟體解決方案。近來也積極結合 AI 技術，推動自動化工作流，讓開發與運維更有效率、更智慧。持續學習與分享，希望能一起推動軟體開發的創新和進步。
+
+## Contact
+
+**風清雲談** - 專注於敏捷專案管理、物聯網（IoT）應用開發和領域驅動設計（DDD）。
+
+- 🌐 官方網站：[風清雲談部落格](https://blog.fengqing.tw/)
+- 📘 Facebook：[風清雲談粉絲頁](https://www.facebook.com/profile.php?id=61576838896062)
+- 💼 LinkedIn：[Chu Kuo-Lung](https://www.linkedin.com/in/chu-kuo-lung)
+- 📺 YouTube：[雲談風清頻道](https://www.youtube.com/channel/UCXDqLTdCMiCJ1j8xGRfwEig)
+- 📧 Email：[fengqing.tw@gmail.com](mailto:fengqing.tw@gmail.com)
 
 ---
 
-**📅 最後更新：2025年6月30日**  
-**👨‍💻 維護者：風清雲談團隊** 
+**⭐ 如果這個專案對您有幫助，歡迎給個 Star！**
