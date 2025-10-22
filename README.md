@@ -326,20 +326,20 @@ public class CoffeeService {
     
     /**
      * Find coffee from cache with automatic fallback
-     */
-    public Optional<Coffee> findSimpleCoffeeFromCache(String name) {
+ */
+public Optional<Coffee> findSimpleCoffeeFromCache(String name) {
         // 1. Check Redis cache using secondary index
-        Optional<CoffeeCache> cached = cacheRepository.findOneByName(name);
-        
-        if (cached.isPresent()) {
+    Optional<CoffeeCache> cached = cacheRepository.findOneByName(name);
+    
+    if (cached.isPresent()) {
             // Cache hit - Convert to Coffee entity
-            CoffeeCache coffeeCache = cached.get();
-            Coffee coffee = Coffee.builder()
-                    .name(coffeeCache.getName())
-                    .price(coffeeCache.getPrice())
-                    .build();
-            log.info("Coffee {} found in cache.", coffeeCache);
-            return Optional.of(coffee);
+        CoffeeCache coffeeCache = cached.get();
+        Coffee coffee = Coffee.builder()
+                .name(coffeeCache.getName())
+                .price(coffeeCache.getPrice())
+                .build();
+        log.info("Coffee {} found in cache.", coffeeCache);
+        return Optional.of(coffee);
         }
         
         // 2. Cache miss - Query database
